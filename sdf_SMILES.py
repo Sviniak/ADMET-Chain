@@ -1,18 +1,22 @@
+import os
 from rdkit import Chem
-from rdkit.Chem import Draw
 
-#m = Chem.MolFromMolFile('SFAHFA-S-34.mol') #Define the variable m to have the value of the mol file
-suppl = Chem.SDMolSupplier('LC_GPCR_Receptor_Based_Targeted_Library.sdf')
-mols = [x for x in suppl]
-print("Total Molecules are:", len(mols))
+def sdf_to_smiles(sdf_file, output_dir='uploads'):
+    try:
+        suppl = Chem.SDMolSupplier(sdf_file)
+        mols = [x for x in suppl if x is not None]
+        print(f"Total Molecules: {len(mols)}")
 
-with Chem.SmilesWriter('LC_GPCR_Receptor_Based_Targeted_Library.smi', includeHeader=False) as w: #w defined var
-    for m in mols:
-        w.write(m) 
+        # Define the output SMILES file path
+        base_name = os.path.splitext(os.path.basename(sdf_file))[0]
+        smiles_file = os.path.join(output_dir, f"{base_name}.smi")
 
-# m = Chem.MolFromMolFile('SFAHFA-S-34.mol') #Define the variable m to have the value of the mol file
-# m_new = Chem.MolToSmiles(m, isomericSmiles=False) #execute the function here'
-# print("SMILES:", m_new)
-# img = Draw.MolToImage(m) #call the Draw function and set it = to img
-# img.show() #Show the image in PIL 
+        # Write molecules to the SMILES file
+        with Chem.SmilesWriter(smiles_file, includeHeader=False) as w:
+            for m in mols:
+                w.write(m)
+
+        return smiles_file
+    except Exception as e:
+        raise RuntimeError(f"Error processing SDF file: {e}")
 

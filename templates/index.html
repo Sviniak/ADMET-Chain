@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>File Upload</title>
+    </head>
+    <body>
+        <div class="file-upload">
+            <main>
+                <h1>Upload your .sdf File</h1>
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <label for="file">File</label>
+                    <input id="file" name="file" type="file" />
+                    <br><br>
+                    <button type="submit">Upload Here</button>
+                </form>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </main>
+        </div>
+    </body>
+</html>
