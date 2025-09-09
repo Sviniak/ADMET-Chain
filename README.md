@@ -11,3 +11,4 @@ pip install -r requirements.txt
 python index.py
 ```
 Navigate to http://127.0.0.1:5000
+Upload file & Then Wait for Program to run, download will then be available.

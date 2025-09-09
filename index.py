@@ -1,9 +1,11 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, send_from_directory
 from werkzeug.utils import secure_filename
+from io import BytesIO
 import os
 from sdf_SMILES import sdf_to_smiles
 
 app = Flask(__name__)
+app.secret_key = 'F68EE12228E1F59A51D1B9231639EDF4' # Replace with your actual key
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'sdf'}
 
@@ -15,6 +17,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/download/<filename>')
+def download(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 @app.route('/')
 def upload_file():
@@ -35,14 +41,14 @@ def handle_file_upload():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-        
-        # Call the sdf_to_smiles function to process the file
-        try:
-            smiles_file = sdf_to_smiles(filepath, output_dir=app.config['UPLOAD_FOLDER'])
-            flash(f"File processed successfully! SMILES saved to {smiles_file}")
-        except Exception as e:
-            flash(f"Error processing file: {e}")
-        
+
+    try:
+        smiles_file = sdf_to_smiles(filepath, output_dir=app.config['UPLOAD_FOLDER'])
+        smiles_filename = os.path.basename(smiles_file)  # just filename
+        flash("File processed successfully! Download is above")
+        return render_template('index.html', smiles_filename=smiles_filename)
+    except Exception as e:
+        flash(f"Error processing file: {e}")
         return redirect(url_for('upload_file'))
     else:
         flash('Invalid file type. Only .sdf files are allowed.')
@@ -50,3 +56,4 @@ def handle_file_upload():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000,debug=True)
+    
